@@ -1,3 +1,6 @@
+require("regenerator-runtime/runtime")
+window.PouchDB = require('pouchdb')
+
 class FoodRotes extends HTMLElement {
 	constructor() {
 		super()
@@ -25,10 +28,20 @@ class FoodRotes extends HTMLElement {
 		this.addInput.placeholder = "Green eggs and ham"
 		this.list = this.shadow.querySelector("#list")
 
-		this.save = () => {
-		}
+		this.database = window.PouchDB('food-rotes')
 
-		this.load = () => {
+		this.save = async () => {
+			await this.database.destroy()
+			this.database = window.PouchDB('food-rotes')
+
+			const items = this.list.querySelectorAll("li")
+			items.forEach((item) => {
+				this.database.post({
+					type: "item",
+					caption: item.querySelector(".caption").textContent,
+					done: item.classList.contains("done")
+				})
+			})
 		}
 
 		this.resetList = () => {
@@ -40,12 +53,14 @@ class FoodRotes extends HTMLElement {
 			this.save()
 		}
 
-		this.appendItem = () => {
-			const name = this.addInput.value
-			if(name) {
-				this.addInput.value = ""
-			} else {
-				return
+		this.appendItem = (event, newCaption, newDone) => {
+			if(newCaption === undefined) {
+				if(this.addInput.value) {
+					newCaption = this.addInput.value
+					this.addInput.value = ""
+				} else {
+					return
+				}
 			}
 
 			console.log("[appendItem]")
@@ -61,11 +76,12 @@ class FoodRotes extends HTMLElement {
 			const remove = newItem.querySelector(".removeButton")
 			const caption = newItem.querySelector(".caption")
 
-			caption.textContent = name
+			caption.textContent = newCaption
 
 			remove.addEventListener('click', () => {
 				console.log("[Item removeButton click]")
 				newItem.remove()
+				this.save()
 			})
 
 			done.addEventListener('click', () => {
@@ -75,11 +91,36 @@ class FoodRotes extends HTMLElement {
 				} else {
 					newItem.classList.add("done")
 				}
+				this.save()
 			})
+
+			if(newDone !== undefined && newDone) {
+				newItem.classList.add("done")
+			}
 
 			this.list.appendChild(newItem)
 
 			this.save()
+		}
+
+		this.load = async () => {
+			console.log("[load]")
+			const res = await this.database.query(function(doc) {
+				console.log("[load query]", doc)
+				if(doc.type == "item") {
+					emit({
+						caption: doc.caption,
+						done: doc.done
+					})
+				}
+			})
+			console.log("[load] got", res)
+			if(res && res.rows) {
+				res.rows.forEach((doc) => {
+					console.log("[load] appending", doc.key)
+					this.appendItem(undefined, doc.key.caption, doc.key.done)
+				})
+			}
 		}
 
 		this.addInput.addEventListener('change', this.appendItem)
