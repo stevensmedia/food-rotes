@@ -1,0 +1,36 @@
+.wrapper {
+	background-color: #e0ffff;
+	font-family: "Helvetica";
+	font-size: 24px;
+
+	width: 90%;
+	min-width: 600px;
+	margin: 5px auto;
+	padding: 5px;
+	border: solid 2px black;
+	background: #ffffff;
+
+	button, input {
+		font-size: 24px;
+	}
+
+	#list {
+		.item.done {
+			span {
+				text-decoration: line-through;
+			}
+			
+			background-color: #ffd0d0;
+		}
+
+		.item {
+			background-color: transparent;
+		}
+
+		button {
+			font-size: 35px;
+		}
+
+	}
+
+}

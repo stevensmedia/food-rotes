@@ -1,0 +1,21 @@
+{
+  "name": "food-rotes",
+  "version": "1.0.0",
+  "description": "Grocery list PWA",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx mocha",
+    "build": "npx grunt"
+  },
+  "author": "Neil Stevens",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "babel-preset-minify": "^0.5.1",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
+    "glob": "^7.2.0",
+    "grunt": "^1.4.1",
+    "sass": "^1.49.11"
+  }
+}
