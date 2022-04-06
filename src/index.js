@@ -16,9 +16,11 @@ class FoodRotes extends HTMLElement {
 <h2>Grocery List</h2>
 <p><button id="addButton">Add new item</button>
 <input id="addInput" type="text"></p>
+<p><button id="resetButton">Reset list</button>
 <ul id="list"></ul>
 `
 		this.addButton = this.shadow.querySelector("#addButton")
+		this.resetButton = this.shadow.querySelector("#resetButton")
 		this.addInput = this.shadow.querySelector("#addInput")
 		this.addInput.placeholder = "Green eggs and ham"
 		this.list = this.shadow.querySelector("#list")
@@ -27,6 +29,15 @@ class FoodRotes extends HTMLElement {
 		}
 
 		this.load = () => {
+		}
+
+		this.resetList = () => {
+			const items = this.list.querySelectorAll("li")
+			items.forEach((item) => {
+				item.classList.remove("done")
+			})
+
+			this.save()
 		}
 
 		this.appendItem = () => {
@@ -73,6 +84,7 @@ class FoodRotes extends HTMLElement {
 
 		this.addInput.addEventListener('change', this.appendItem)
 		this.addButton.addEventListener('click', this.appendItem)
+		this.resetButton.addEventListener('click', this.resetList)
 
 		this.load()
 	}
