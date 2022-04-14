@@ -106,6 +106,10 @@ class FoodRotes extends HTMLElement {
 		}
 
 		this.clearList = () => {
+			if(!window.confirm("Are you sure you want to clear the entire list?")) {
+				return
+			}
+
 			const items = this.list.querySelectorAll("li")
 			items.forEach((item) => {
 				item.remove()
@@ -139,6 +143,10 @@ class FoodRotes extends HTMLElement {
 			caption.textContent = newCaption
 
 			remove.addEventListener('click', () => {
+				if(!window.confirm("Remove " + caption.textContent + "?")) {
+					return
+				}
+
 				newItem.remove()
 				this.save()
 			})
