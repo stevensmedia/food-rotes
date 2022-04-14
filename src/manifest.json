@@ -1,11 +1,15 @@
 {
 	"name": "food-rotes",
+	"start_url": "/food-rotes/index.html",
 	"display": "standalone",
+	"background_color": "#e0ffff",
+	"theme_color": "#e0ffff",
 	"icons": [
 		{
 			"src": "./icon.svg",
 			"type": "image/svg+xml",
-			"sizes": "any"
+			"sizes": "any",
+			"purpose": "any maskable"
 		},
 		{
 			"src": "./icon.png",

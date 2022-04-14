@@ -5,6 +5,10 @@ class FoodRotes extends HTMLElement {
 	constructor() {
 		super()
 
+		if('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('./service-worker.js')
+		}
+
 		this.shadow = this.attachShadow({mode: 'open'})
 
 		this.wrapper = document.createElement('div')
@@ -17,7 +21,7 @@ class FoodRotes extends HTMLElement {
 @import "./food-rotes.css";
 </style>
 <h2>Grocery List</h2>
-<p><button id="addButton">Add new item</button>
+<p><button id="addButton">Add</button>
 <input id="addInput" type="text"></p>
 <p><button id="resetButton">Reset Completed Items</button>
 <ul id="list"></ul>

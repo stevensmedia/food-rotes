@@ -2,4 +2,10 @@ body {
 	background-color: #e0ffff;
 
 	font-family: "Helvetica";
+
+	width: 100%;
+	max-width: 720px;
+	overflow-x: hidden;
+	margin: 0 auto;
+	padding: 0;
 }

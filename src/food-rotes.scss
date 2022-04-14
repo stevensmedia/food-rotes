@@ -1,20 +1,22 @@
 .wrapper {
 	background-color: #e0ffff;
 	font-family: "Helvetica";
-	font-size: 24pt;
+	font-size: 10pt;
 
-	width: 90%;
-	min-width: 600px;
-	margin: 5px auto;
+	width: calc(100% - 20px);
+	margin: 0;
 	padding: 10px;
-	border: solid 2px black;
 	background: #ffffff;
 
 	button, input {
-		font-size: 24pt;
+		width: auto;
+		font-size: 14pt;
 	}
 
 	#list {
+		list-style: none;
+		padding-left: 0;
+
 		.item.done {
 			span {
 				text-decoration: line-through;
@@ -26,11 +28,5 @@
 		.item {
 			background-color: transparent;
 		}
-
-		button {
-			font-size: 35pt;
-		}
-
 	}
-
 }
