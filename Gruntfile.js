@@ -91,30 +91,16 @@ module.exports = function(grunt) {
 		done()
 	})
 
-	grunt.registerTask('css', async function() {
+	grunt.registerTask('assets', async function() {
 		const done = this.async()
 		try {
-			const files = await globPromise('src/*.css', {})
+			const files = await globPromise('src/*.+(html|png|json|css)', {})
 			for(i in files) {
 				const file = files[i]
 				await copyTask(file, dist(path.basename(file)))
 			}
 		} catch(e) {
-			grunt.log.write("css task error", e)
-		}
-		done()
-	})
-
-	grunt.registerTask('html', async function() {
-		const done = this.async()
-		try {
-			const files = await globPromise('src/*.html', {})
-			for(i in files) {
-				const file = files[i]
-				await copyTask(file, dist(path.basename(file)))
-			}
-		} catch(e) {
-			grunt.log.write("html task error", e)
+			grunt.log.write("assets task error", e)
 		}
 		done()
 	})
@@ -133,6 +119,6 @@ module.exports = function(grunt) {
 		done()
 	})
 
-	var tasks = ['js', 'css', 'html', 'scss']
+	var tasks = ['js', 'scss', 'assets']
 	grunt.registerTask('default', "Build assets", tasks)
 }
