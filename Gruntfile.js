@@ -32,6 +32,8 @@ async function shouldUpdate(src, dest) {
 	return srcTime > destTime;
 }
 
+const VERSION = "1.0"
+
 module.exports = function(grunt) {
 	async function jsTask(input, output) {
 		if(!await shouldUpdate(input, output)) {
@@ -149,5 +151,26 @@ module.exports = function(grunt) {
 		done()
 	})
 
-	grunt.registerTask('default', "Build dist directory", ['js', 'scss', 'assets'])
+	grunt.registerTask('version.json', async function() {
+		const done = this.async()
+		this.requires('dist')
+		try {
+			const files = (await globPromise('dist/*', {})).concat(['dist/version.json']).map(x => x.replace(/%dist\//, ''))
+			const version = {
+				files: files,
+				version: VERSION
+			}
+			await fsPromises.mkdir('dist', { recursive: true })
+			await fsPromises.writeFile('dist/version.json', JSON.stringify(version))
+		} catch(e) {
+			grunt.log.write("version.json task error", e)
+		}
+		done()
+	
+	})
+
+	grunt.registerTask('dist', "Build dist directory", ['js', 'scss', 'assets'])
+	grunt.registerTask('default', "Build app", ['dist', 'version.json'])
+
+	console.log(def)
 }

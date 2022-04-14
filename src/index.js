@@ -6,7 +6,9 @@ class FoodRotes extends HTMLElement {
 		super()
 
 		if('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('./service-worker.js')
+			navigator.serviceWorker.register('./service-worker.js', {
+				scope: window.location.href
+			})
 		}
 
 		this.shadow = this.attachShadow({mode: 'open'})
