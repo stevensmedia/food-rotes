@@ -17,8 +17,28 @@ function globPromise(g, opts) {
 	})
 }
 
+async function mtime(file) {
+	try {
+		const stats = await fsPromises.stat(file)
+		return stats.mtime
+	} catch(e) {
+		return 0
+	}
+}
+
+async function shouldUpdate(src, dest) {
+	const srcTime = await mtime(src)
+	const destTime = await mtime(dest)
+	return srcTime > destTime;
+}
+
 module.exports = function(grunt) {
 	async function jsTask(input, output) {
+		if(!await shouldUpdate(input, output)) {
+			grunt.log.subhead(input, "unchanged, skipping")
+			return
+		}
+
 		grunt.log.subhead(input, "Read source")
 		const raw = await fsPromises.readFile(input, 'utf8')
 
@@ -52,6 +72,11 @@ module.exports = function(grunt) {
 	}
 
 	async function scssTask(input, output) {
+		if(!await shouldUpdate(input, output)) {
+			grunt.log.subhead(input, "unchanged, skipping")
+			return
+		}
+
 		grunt.log.subhead(input, "Sass")
 		var css = sass.renderSync({
 			file: input
@@ -63,6 +88,11 @@ module.exports = function(grunt) {
 	}
 
 	async function copyTask(input, output) {
+		if(!await shouldUpdate(input, output)) {
+			grunt.log.subhead(input, "unchanged, skipping")
+			return
+		}
+
 		grunt.log.subhead(input, "Copy")
 		await fsPromises.mkdir(path.dirname(output), { recursive: true })
 		await fsPromises.copyFile(input, output)
@@ -119,6 +149,5 @@ module.exports = function(grunt) {
 		done()
 	})
 
-	var tasks = ['js', 'scss', 'assets']
-	grunt.registerTask('default', "Build assets", tasks)
+	grunt.registerTask('default', "Build dist directory", ['js', 'scss', 'assets'])
 }
