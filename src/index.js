@@ -6,9 +6,23 @@ class FoodRotes extends HTMLElement {
 		super()
 
 		if('serviceWorker' in navigator) {
+			//console.log("[food-rotes] Creating worker")
 			navigator.serviceWorker.register('./service-worker.js', {
 				scope: window.location.href
+			}).then((reg) => {
+				//console.log("[food-rotes] Worker created")
+				this.workerRegistration = reg
 			})
+		}
+
+		this.reload = async () => {
+			console.log("[food-rotes] Reload!")
+			if(this.workerRegistration && this.workerRegistration.active) {
+				console.log("[food-rotes] Updating worker")
+				this.workerRegistration.update()
+			}
+			console.log("[food-rotes] reloading page")
+			window.location.reload()
 		}
 
 		this.shadow = this.attachShadow({mode: 'open'})
@@ -23,15 +37,23 @@ class FoodRotes extends HTMLElement {
 @import "./food-rotes.css";
 </style>
 <h2>Grocery List</h2>
-<p><button id="addButton">Add</button>
-<input id="addInput" type="text"></p>
-<p><button id="resetButton">Reset Completed Items</button>
+<p>
+	<button id="addButton">Add</button>
+	<input id="addInput" type="text">
+</p>
+<p>
+	<button id="resetButton">Reset Completed Items</button>
+</p>
 <ul id="list"></ul>
-<p><button id="clearButton">Clear list (Careful!)</button>
+<p>
+	<button id="clearButton">Clear list (Careful!)</button>
+	<button id="reloadButton">Reload</button>
+</p>
 `
 		this.addButton = this.shadow.querySelector("#addButton")
 		this.resetButton = this.shadow.querySelector("#resetButton")
 		this.clearButton = this.shadow.querySelector("#clearButton")
+		this.reloadButton = this.shadow.querySelector("#reloadButton")
 		this.addInput = this.shadow.querySelector("#addInput")
 		this.addInput.placeholder = "Green eggs and ham"
 		this.list = this.shadow.querySelector("#list")
@@ -210,6 +232,7 @@ class FoodRotes extends HTMLElement {
 		this.addButton.addEventListener('click', this.appendItem)
 		this.resetButton.addEventListener('click', this.resetList)
 		this.clearButton.addEventListener('click', this.clearList)
+		this.reloadButton.addEventListener('click', this.reload)
 
 		this.load()
 	}

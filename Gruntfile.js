@@ -37,7 +37,7 @@ const VERSION = "1.0"
 module.exports = function(grunt) {
 	async function jsTask(input, output) {
 		if(!await shouldUpdate(input, output)) {
-			grunt.log.subhead(input, "unchanged, skipping")
+			// grunt.log.subhead(input, "unchanged, skipping")
 			return
 		}
 
@@ -75,7 +75,7 @@ module.exports = function(grunt) {
 
 	async function scssTask(input, output) {
 		if(!await shouldUpdate(input, output)) {
-			grunt.log.subhead(input, "unchanged, skipping")
+			// grunt.log.subhead(input, "unchanged, skipping")
 			return
 		}
 
@@ -91,7 +91,7 @@ module.exports = function(grunt) {
 
 	async function copyTask(input, output) {
 		if(!await shouldUpdate(input, output)) {
-			grunt.log.subhead(input, "unchanged, skipping")
+			// grunt.log.subhead(input, "unchanged, skipping")
 			return
 		}
 
@@ -155,7 +155,8 @@ module.exports = function(grunt) {
 		const done = this.async()
 		this.requires('dist')
 		try {
-			const files = (await globPromise('dist/*', {})).concat(['dist/version.json']).map(x => x.replace(/%dist\//, ''))
+			const files = (await globPromise('dist/*', {})).filter(x => x != 'dist/version.json').map(x => x.replace(/^dist\//, ''))
+
 			const version = {
 				files: files,
 				version: VERSION
@@ -171,6 +172,4 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('dist', "Build dist directory", ['js', 'scss', 'assets'])
 	grunt.registerTask('default', "Build app", ['dist', 'version.json'])
-
-	console.log(def)
 }
