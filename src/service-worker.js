@@ -4,7 +4,7 @@ var foodRotesWorker = {}
 
 //console.log("[serviceworker.js] Started")
 
-const activate = async () => {
+const activate = async (s) => {
 	if(foodRotesWorker.version) {
 		return
 	}
@@ -14,10 +14,12 @@ const activate = async () => {
 	//console.log("[service-worker.js] JSON ", json)
 	foodRotesWorker = json
 	//console.log("[service-worker.js] Version ", foodRotesWorker.version)
+
+	s.addEventListener("install",  e => e.waitUntil(install()))
+	s.addEventListener('fetch', e => e.respondWith(pull(e.request)))
 }
 
 const install = async () => {
-	await activate()
 	//console.log("[service-worker.js] install ", foodRotesWorker.files)
 	foodRotesWorker.cache = await caches.open('food-rotes-' + foodRotesWorker.version)
 	await foodRotesWorker.cache.addAll(foodRotesWorker.files)
@@ -25,13 +27,12 @@ const install = async () => {
 
 const pull = async (req) => {
 	//console.log("[service-worker.js] pull", req)
-	await activate()
-	const cach = await foodRotesWorker.cache.match(req)
-	return cach || fetch(req)
+	if(req) {
+		const cach = await foodRotesWorker.cache.match(req)
+		return cach || fetch(req)
+	}
 }
 
-self.addEventListener("install",  e => e.waitUntil(install()))
-
-self.addEventListener('fetch', e => e.respondWith(pull(e.request)))
+activate(self)
 
 //console.log("[serviceworker.js] Listeners added")

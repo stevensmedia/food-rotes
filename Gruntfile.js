@@ -155,8 +155,11 @@ module.exports = function(grunt) {
 		const done = this.async()
 		this.requires('dist')
 		try {
-			const files = (await globPromise('dist/*', {})).filter(x => x != 'dist/version.json').map(x => x.replace(/^dist\//, ''))
-
+			var filesRaw = await globPromise('dist/*', {})
+			if(0 <= filesRaw.indexOf('dist/version.json')) {
+				filesRaw.push('dist/version.json')
+			}
+			const files = filesRaw.map(x => x.replace(/^dist\//, ''))
 			const version = {
 				files: files,
 				version: VERSION
