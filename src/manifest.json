@@ -1,0 +1,17 @@
+{
+	"name": "food-rotes",
+	"display": "standalone",
+	"icons": [
+		{
+			"src": "./icon.svg",
+			"type": "image/svg+xml",
+			"sizes": "any"
+		},
+		{
+			"src": "./icon.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		}
+	],
+	"orientation": "portrait-primary"
+}
