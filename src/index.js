@@ -171,11 +171,24 @@ class FoodRotes extends HTMLElement {
 					emit("rec", false)
 				}
 			}, {include_docs: true})
+
+			const strcmp = function(x, y) {
+				if(x < y) {
+					return -1
+				}
+				if(x > y) {
+					return 1
+				}
+				return o
+			}
+
+			const isRec = x => x.key == "rec"
+			const hasValue = x => x.value
+			const byValue = (x, y) => strcmp(x.value.toLowerCase(), y.value.toLowerCase())
+			const rows = res.rows.filter(isRec).filter(hasValue).sort(byValue)
 			for(const r in res.rows) {
 				const row = res.rows[r]
-				if(row.key == "rec" && row.value) {
-					this.appendItem(undefined, row.doc.caption, row.doc.done)
-				}
+				this.appendItem(undefined, row.doc.caption, row.doc.done)
 			}
 		}
 
