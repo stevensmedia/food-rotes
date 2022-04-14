@@ -184,10 +184,10 @@ class FoodRotes extends HTMLElement {
 
 			const isRec = x => x.key == "rec"
 			const hasValue = x => x.value
-			const byValue = (x, y) => strcmp(x.value.toLowerCase(), y.value.toLowerCase())
-			const rows = res.rows.filter(isRec).filter(hasValue).sort(byValue)
-			for(const r in res.rows) {
-				const row = res.rows[r]
+			const byCaption = (x, y) => strcmp(x.doc.caption.toLowerCase(), y.doc.caption.toLowerCase())
+			const rows = res.rows.filter(isRec).filter(hasValue).sort(byCaption)
+			for(const r in rows) {
+				const row = rows[r]
 				this.appendItem(undefined, row.doc.caption, row.doc.done)
 			}
 		}
