@@ -94,7 +94,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('assets', async function() {
 		const done = this.async()
 		try {
-			const files = await globPromise('src/*.+(html|png|json|css)', {})
+			const files = await globPromise('src/*.+(html|png|json|css|svg)', {})
 			for(i in files) {
 				const file = files[i]
 				await copyTask(file, dist(path.basename(file)))
