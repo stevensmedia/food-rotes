@@ -1,5 +1,4 @@
 require("regenerator-runtime/runtime")
-window.PouchDB = require('pouchdb')
 
 class FoodRotes extends HTMLElement {
 	constructor() {
@@ -48,80 +47,40 @@ class FoodRotes extends HTMLElement {
 <p>
 	<button id="clearButton">Clear list (Careful!)</button>
 	<button id="reloadButton">Reload</button>
+	<button id="exportButton">Export</button>
+	<button id="importButton">Import</button>
 </p>
 `
 		this.addButton = this.shadow.querySelector("#addButton")
 		this.resetButton = this.shadow.querySelector("#resetButton")
 		this.clearButton = this.shadow.querySelector("#clearButton")
 		this.reloadButton = this.shadow.querySelector("#reloadButton")
+		this.exportButton = this.shadow.querySelector("#exportButton")
+		this.importButton = this.shadow.querySelector("#importButton")
 		this.addInput = this.shadow.querySelector("#addInput")
 		this.addInput.placeholder = "Green eggs and ham"
 		this.list = this.shadow.querySelector("#list")
-
-		this.database = window.PouchDB('food-rotes', {auto_compaction: true})
+		this.databaseName = 'food-rotes-db'
 
 		this.save = async () => {
 			const items = this.list.querySelectorAll("li").entries()
 			const saveTime = Date.now()
 
+			var database = []
 			for(var i = items.next(); !i.done; i = items.next()) {
 				const item = i.value[1]
 				const type = "item"
 				const caption = item.querySelector(".caption").textContent
 				const done = item.classList.contains("done")
 
-				const olddoc = await this.database.query((doc, emit) => {
-					try {
-						if(doc.type == type && doc.caption == caption) {
-							emit("idrev", true)
-						} else {
-							emit("idrev", undefined)
-						}
-					} catch(e) {
-						console.log("[SAVE] [Finding old doc] error", e)
-						console.trace()
-					}
-				}, {include_docs: true})
-
-				var puts = 0
-				for(const r in olddoc.rows) {
-					const row = olddoc.rows[r]
-					if(row.key == "idrev" && row.value) {
-						puts += 1
-						await this.database.put({
-							type: type,
-							caption: caption,
-							done: done,
-							_id: row.doc._id,
-							_rev: row.doc._rev,
-							saveTime: saveTime
-						})
-					}
+				const row = {
+					type: type,
+					caption: caption,
+					done: done,
 				}
-				if(!puts) {
-					await this.database.post({
-						type: type,
-						caption: caption,
-						done: done,
-						saveTime: saveTime
-					})
-				}
+				database.push(row)
 			}
-
-			const unupdated = await this.database.query((doc, emit) => {
-				if(doc.type == "item" && doc.saveTime != saveTime) {
-					emit("idrev", true)
-				} else {
-					emit("idrev", false)
-				}
-			}, {include_docs: true})
-
-			for(const r in unupdated.rows) {
-				const row = unupdated.rows[r]
-				if(row.key == "idrev" && row.value) {
-					await this.database.remove(row.doc._id, row.doc._rev)
-				}
-			}
+			window.localStorage.setItem(this.databaseName, JSON.stringify(database))
 		}
 
 		this.resetList = () => {
@@ -143,7 +102,7 @@ class FoodRotes extends HTMLElement {
 				item.remove()
 			})
 
-			this.save()
+			window.localStorage.setItem(this.databaseName, []);
 		}
 
 		this.appendItem = (event, newCaption, newDone) => {
@@ -199,14 +158,13 @@ class FoodRotes extends HTMLElement {
 			}
 		}
 
+		this.getDatabase = () => {
+			const databaseStr = window.localStorage.getItem(this.databaseName) || "[]"
+			return JSON.parse(databaseStr)
+		}
+
 		this.load = async () => {
-			const res = await this.database.query((doc, emit) => {
-				if(doc.type == "item") {
-					emit("rec", true)
-				} else {
-					emit("rec", false)
-				}
-			}, {include_docs: true})
+			const database = this.getDatabase()
 
 			const strcmp = function(x, y) {
 				if(x < y) {
@@ -215,17 +173,33 @@ class FoodRotes extends HTMLElement {
 				if(x > y) {
 					return 1
 				}
-				return o
+				return 0
 			}
 
-			const isRec = x => x.key == "rec"
-			const hasValue = x => x.value
-			const byCaption = (x, y) => strcmp(x.doc.caption.toLowerCase(), y.doc.caption.toLowerCase())
-			const rows = res.rows.filter(isRec).filter(hasValue).sort(byCaption)
-			for(const r in rows) {
-				const row = rows[r]
-				this.appendItem(undefined, row.doc.caption, row.doc.done)
+			const isItem = x => x.type == "item"
+			const byCaption = (x, y) => strcmp(x.caption.toLowerCase(), y.caption.toLowerCase())
+			const items = database.filter(isItem).sort(byCaption)
+			for(const i in items) {
+				const item = items[i]
+				try {
+					this.appendItem(undefined, item.caption, item.done)
+				} catch(e) {
+					console.log("[load] Error loading item", item)
+				}
 			}
+		}
+
+		this.export = async (ev) => {
+			const database = this.getDatabase()
+			await navigator.clipboard.writeText(JSON.stringify(database))
+			window.alert("Copied!")
+		}
+
+		this.import = async (ev) => {
+			const string = await navigator.clipboard.readText()
+			console.log("[import]", string)
+			window.localStorage.setItem(this.databaseName, string)
+			this.reload()
 		}
 
 		this.addInput.addEventListener('change', this.appendItem)
@@ -233,6 +207,8 @@ class FoodRotes extends HTMLElement {
 		this.resetButton.addEventListener('click', this.resetList)
 		this.clearButton.addEventListener('click', this.clearList)
 		this.reloadButton.addEventListener('click', this.reload)
+		this.exportButton.addEventListener('click', this.export)
+		this.importButton.addEventListener('click', this.import)
 
 		this.load()
 	}
